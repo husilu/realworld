@@ -49,3 +49,14 @@ export const getComments = (slug) => {
     url: `/api/articles/${slug}/comments`
   })
 }
+
+// 写文章
+// 获取文章评论
+export const postArticle = (params) => {
+  console.log('params', params)
+  return request({
+    method: 'POST',
+    url: `/api/articles`,
+    data: params
+  })
+}

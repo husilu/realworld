@@ -74,6 +74,9 @@
               <span>Read more...</span>
             </nuxt-link>
           </div>
+          <!-- <div class='article-loading' v-if='loading'>
+            Loading articles...
+          </div> -->
           <!-- 分页 -->
           <ul class='pagination'>
             <li class='page-item' v-for='item in totalPage' :key='item' :class='{active: item === page}'>
@@ -162,7 +165,6 @@ export default {
   methods: {
     async onFavorite(article) {
       article.favoriteDisabled = true;
-      console.log(article);
       if (article.favorited) {
         // 取消点赞
         await deleteFavorite(article.slug);
