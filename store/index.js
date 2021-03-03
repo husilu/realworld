@@ -39,7 +39,6 @@ export const actions = {
       }
     }
     // 提交mutation 修改 state状态
-    console.log('user', user)
     commit('setUser', user);
   }
 }

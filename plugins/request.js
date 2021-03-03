@@ -12,6 +12,7 @@ export default ({ store }) => {
   // 例如统一设置token
   const { user } = store.state
   request.interceptors.request.use(function (config) {
+    console.log('http', user)
     if (user && user.token) {
       config.headers.Authorization = `Token ${user.token}`
     }
