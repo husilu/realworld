@@ -51,12 +51,28 @@ export const getComments = (slug) => {
 }
 
 // 写文章
-// 获取文章评论
 export const postArticle = (params) => {
   console.log('params', params)
   return request({
     method: 'POST',
     url: `/api/articles`,
     data: params
+  })
+}
+
+// 编辑用户信息
+export const userApi = (params) => {
+  return request({
+    method: 'PUT',
+    url: `/api/user`,
+    data: params
+  })
+}
+
+// 获取用户profile信息
+export const getUserprofile = (params) => {
+  return request({
+    method: 'GET',
+    url: `/api/profiles/${params}`
   })
 }

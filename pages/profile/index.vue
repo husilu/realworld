@@ -4,14 +4,18 @@
       <div class="container">
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img src="http://i.imgur.com/Qr71crq.jpg" class="user-img" />
-            <h4>Eric Simons</h4>
+            <img :src="user.image" class="user-img" />
+            <h4>{{user.username}}</h4>
             <p>
-              Cofounder @GoThinkster, lived in Aol's HQ for a few months, kinda looks like Peeta from the Hunger Games
+              {{user.bio}}
             </p>
-            <button class="btn btn-sm btn-outline-secondary action-btn">
+            <button class="btn btn-sm btn-outline-secondary action-btn" v-if="user.username !== username">
               <i class="ion-plus-round"></i>
               &nbsp; Follow Eric Simons
+            </button>
+            <button class="btn btn-sm btn-outline-secondary action-btn" v-else @click='toEdit'>
+              <i class="ion-plus-round"></i>
+              &nbsp; Edit Profile Settings
             </button>
           </div>
         </div>
@@ -80,9 +84,32 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+import { getUserprofile } from "@/api/article";
 export default {
   middleware: "authenticated",
-  name: "UserProfile"
+  name: "UserProfile",
+  computed: {
+    ...mapState(["user"])
+  },
+  async asyncData({ params, store }) {
+    let res = await getUserprofile(params.username);
+    let { image, bio, following, username } = res.data.profile;
+    return {
+      image,
+      bio,
+      following,
+      username
+    };
+  },
+  data() {
+    return {};
+  },
+  methods: {
+    toEdit() {
+      this.$router.push("/settings");
+    }
+  }
 };
 </script>
 
