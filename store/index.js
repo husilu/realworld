@@ -31,6 +31,7 @@ export const actions = {
     if (req.headers.cookie) {
       // 使用 cookieparser 把cookie字符串 转为js对象
       const parsed = cookieparser.parse(req.headers.cookie);
+      console.log(parsed)
       try {
         user = JSON.parse(parsed.user) // parsed.user 是json字符串 JSON.parse得到json对象
       } catch (err) {
