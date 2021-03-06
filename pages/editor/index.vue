@@ -58,8 +58,7 @@ export default {
     };
   },
   async mounted() {
-    // console.log(this.$route.params)
-    if (this.$route.params) {
+    if (this.$route.params.slug) {
       let res = await getArticle(this.$route.params.slug);
       let { article } = res.data;
       this.params.title = article.title;

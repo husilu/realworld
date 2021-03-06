@@ -50,6 +50,7 @@
 <script>
 import { mapState } from "vuex";
 import { userApi, getUserprofile } from "@/api/user.js";
+const Cookie = process.client ? require("js-cookie") : undefined;
 export default {
   middleware: "authenticated",
   name: "SettingsIndex",
@@ -77,7 +78,8 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.commit("setUser", "");
+      Cookie.remove('user')
+      this.$store.commit("setUser", null);
       this.$router.push("/");
     },
     async updateHandler() {
@@ -87,7 +89,6 @@ export default {
       let res = await userApi({ user: this.form });
       if (!res.errors) {
         let userRes = await getUserprofile(this.form.username);
-        console.log('userRes', userRes)
         this.$store.commit('setUserItem', userRes.data.profile);
         this.$router.push(`/profile/${this.form.username}`);
       }

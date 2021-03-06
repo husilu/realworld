@@ -11,7 +11,7 @@
           </li>
           <template v-if='user'>
             <li class="nav-item">
-              <nuxt-link to='/editor' class="nav-link">
+              <nuxt-link to='/neweditor' class="nav-link">
                 <i class="ion-compose"></i>&nbsp;New Article</nuxt-link>
             </li>
             <li class="nav-item">

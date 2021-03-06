@@ -41,6 +41,11 @@ export default {
               component: resolve(__dirname, 'pages/editor/'),
             },
             {
+              path: '/neweditor',
+              name: 'neweditor',
+              component: resolve(__dirname, 'pages/editor/'),
+            },
+            {
               path: '/article/:slug',
               name: 'article',
               component: resolve(__dirname, 'pages/article/'),
