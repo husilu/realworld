@@ -28,7 +28,10 @@
                     <i class='ion-close-round' @click='scHandler(index)'></i>{{item}}</span>
                 </div>
               </fieldset>
-              <button class="btn btn-lg pull-xs-right btn-primary" type="button" @click='postArticle' :disabled='publoading'>
+              <button class="btn btn-lg pull-xs-right btn-primary" type="button" @click='postArticle' :disabled='publoading' v-if='!this.$route.params.slug'>
+                Publish Article
+              </button>
+              <button class="btn btn-lg pull-xs-right btn-primary" type="button" @click='editArticle' :disabled='publoading' v-else>
                 Publish Article
               </button>
             </fieldset>
@@ -40,7 +43,7 @@
 </template>
 
 <script>
-import { postArticle, getArticle } from "@/api/article";
+import { postArticle, getArticle, editArticle } from "@/api/article";
 export default {
   // 在路由匹配组件渲染之前会先执行中间件处理
   middleware: "authenticated",
@@ -71,8 +74,28 @@ export default {
   methods: {
     async postArticle() {
       this.publoading = true;
+      // let method = this.$route.params.slug ? "PUT" : "POST";
       try {
         let res = await postArticle({ article: this.params });
+        this.publoading = false;
+        this.$router.push({
+          name: "article",
+          params: {
+            slug: res.data.article.slug
+          }
+        });
+      } catch (err) {
+        this.publoading = false;
+        // console.log("请求失败", err);
+        this.errors = err.response.data.errors;
+      }
+    },
+    async editArticle() {
+      this.publoading = true;
+      try {
+        let res = await editArticle(this.$route.params.slug, {
+          article: this.params
+        });
         this.publoading = false;
         this.$router.push({
           name: "article",

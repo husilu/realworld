@@ -52,10 +52,18 @@ export const getComments = (slug) => {
 
 // 写文章
 export const postArticle = (params) => {
-  // console.log('params', params)
   return request({
     method: 'POST',
     url: `/api/articles`,
+    data: params
+  })
+}
+
+// 编辑文章
+export const editArticle = (slug, params) => {
+  return request({
+    method: 'PUT',
+    url: `/api/articles/${slug}`,
     data: params
   })
 }
