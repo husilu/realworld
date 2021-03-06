@@ -54,10 +54,10 @@
         &nbsp; Unfollow {{article.author.username}}
       </button>
       &nbsp;
-      <button class='btn btn-outline-danger btn-sm' @click='deleteHandler(article.slug)'>
+      <!-- <button class='btn btn-outline-danger btn-sm' @click='deleteHandler(article.slug)'>
         <i class="ion-trash-a"></i>
         &nbsp; Delete Article
-      </button>
+      </button> -->
       <button class="btn btn-sm btn-outline-primary" :class="{ active: article.favorited }" @click="onFavorite(article)" :disabled='faloading'>
         <i class="ion-heart"></i>
         &nbsp; Favorite Article
