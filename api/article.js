@@ -52,7 +52,7 @@ export const getComments = (slug) => {
 
 // 写文章
 export const postArticle = (params) => {
-  console.log('params', params)
+  // console.log('params', params)
   return request({
     method: 'POST',
     url: `/api/articles`,

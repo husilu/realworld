@@ -6,7 +6,7 @@
       </div>
       <div class="card-footer">
         <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-        <button class="btn btn-sm btn-primary" @click='postCommentHandler' type="button">
+        <button class="btn btn-sm btn-primary" @click='postCommentHandler' type="button" :disabled='subloading'>
           Post Comment
         </button>
       </div>
@@ -61,8 +61,9 @@ export default {
   },
   data() {
     return {
+      subloading: false,
       comments: [], // 文章列表
-      commentVal: ''
+      commentVal: ""
     };
   },
   async mounted() {
@@ -70,9 +71,14 @@ export default {
   },
   methods: {
     async postCommentHandler() {
-      let res = await postComment({slug: this.article.slug, comment: this.commentVal});
-      console.log(res)
-      this.commentVal = '';
+      this.subloading = true;
+      let res = await postComment({
+        slug: this.article.slug,
+        comment: this.commentVal
+      });
+      this.subloading = false;
+      // console.log(res);
+      this.commentVal = "";
       this.getComments();
     },
     async getComments() {
@@ -80,7 +86,7 @@ export default {
       this.comments = data.comments;
     },
     async deleteComHandler(id) {
-      await deleteComment(this.article.slug, id)
+      await deleteComment(this.article.slug, id);
       this.getComments();
     }
   }

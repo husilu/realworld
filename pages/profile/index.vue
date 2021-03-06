@@ -9,12 +9,7 @@
             <p>
               {{ bio }}
             </p>
-            <button
-              class="btn btn-sm btn-outline-secondary action-btn"
-              v-if="user.username !== username"
-              @click="toFollow"
-              :disabled="loading"
-            >
+            <button class="btn btn-sm btn-outline-secondary action-btn" v-if="user.username !== username" @click="toFollow" :disabled="loading">
               <template v-if="!following">
                 <i class="ion-plus-round"></i>
                 &nbsp; Follow {{ username }}
@@ -24,11 +19,7 @@
                 &nbsp; Unfollow {{ username }}
               </template>
             </button>
-            <button
-              class="btn btn-sm btn-outline-secondary action-btn"
-              v-else
-              @click="toEdit"
-            >
+            <button class="btn btn-sm btn-outline-secondary action-btn" v-else @click="toEdit">
               <i class="ion-plus-round"></i>
               &nbsp; Edit Profile Settings
             </button>
@@ -43,13 +34,9 @@
           <div class="articles-toggle">
             <ul class="nav nav-pills outline-active">
               <li class="nav-item">
-                <nuxt-link
-                  class="nav-link"
-                  :class="{
+                <nuxt-link class="nav-link" :class="{
                     active: tab === 'my_articles',
-                  }"
-                  exact
-                  :to="{
+                  }" exact :to="{
                     name: 'profile',
                     params: {
                       username: username,
@@ -57,19 +44,13 @@
                     query: {
                       tab: 'my_articles',
                     },
-                  }"
-                  >My Articles</nuxt-link
-                >
+                  }">My Articles</nuxt-link>
               </li>
               <li class="nav-item">
                 <!-- <a class="nav-link" href="">Favorited Articles</a> -->
-                <nuxt-link
-                  class="nav-link"
-                  :class="{
+                <nuxt-link class="nav-link" :class="{
                     active: tab === 'favorited_articles',
-                  }"
-                  exact
-                  :to="{
+                  }" exact :to="{
                     name: 'profile',
                     params: {
                       username: username,
@@ -77,9 +58,7 @@
                     query: {
                       tab: 'favorited_articles',
                     },
-                  }"
-                  >Favorited Articles</nuxt-link
-                >
+                  }">Favorited Articles</nuxt-link>
               </li>
             </ul>
           </div>
@@ -101,21 +80,10 @@
               <span>Read more...</span>
             </a>
           </div> -->
-          <article-item
-            v-for="article in articles"
-            :article="article"
-            :key="article.slug"
-          ></article-item>
+          <article-item v-for="article in articles" :article="article" :key="article.slug"></article-item>
           <ul class="pagination" v-if='totalPage > 1'>
-            <li
-              class="page-item"
-              v-for="item in totalPage"
-              :key="item"
-              :class="{ active: item === page }"
-            >
-              <nuxt-link
-                class="page-link"
-                :to="{
+            <li class="page-item" v-for="item in totalPage" :key="item" :class="{ active: item === page }">
+              <nuxt-link class="page-link" :to="{
                   name: 'profile',
                   params: {
                     username: username,
@@ -124,8 +92,7 @@
                     tab,
                     page: item
                   },
-                }"
-              >
+                }">
                 {{ item }}
               </nuxt-link>
             </li>
@@ -145,17 +112,17 @@ export default {
   middleware: "authenticated",
   name: "UserProfile",
   components: {
-    ArticleItem,
+    ArticleItem
   },
   computed: {
     ...mapState(["user"]),
     totalPage() {
       return Math.ceil(this.articlesCount / this.limit);
-    },
+    }
   },
   watchQuery: ["tab", "page"],
   async asyncData({ params, store, query }) {
-    console.log(query)
+    // console.log(query)
     const page = Number.parseInt(query.page || 1);
     const tab = query.tab || "my_articles";
     const limit = 5;
@@ -166,16 +133,16 @@ export default {
         ? {
             limit,
             author,
-            offset: (page - 1) * limit,
+            offset: (page - 1) * limit
           }
         : {
             limit,
             favorited,
-            offset: (page - 1) * limit,
+            offset: (page - 1) * limit
           };
     const [getUserprofileRes, articleRes] = await Promise.all([
       getUserprofile(author),
-      getArticles(paramsback),
+      getArticles(paramsback)
     ]);
     const { image, bio, following, username } = getUserprofileRes.data.profile;
     const { articles, articlesCount } = articleRes.data;
@@ -188,12 +155,12 @@ export default {
       articles,
       articlesCount,
       limit,
-      page,
+      page
     };
   },
   data() {
     return {
-      loading: false,
+      loading: false
     };
   },
   methods: {
@@ -206,8 +173,8 @@ export default {
       let { data } = await follow({ method, username: this.username });
       this.loading = false;
       this.following = data.profile.following;
-    },
-  },
+    }
+  }
 };
 </script>
 

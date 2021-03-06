@@ -29,7 +29,7 @@
                 <input class="form-control form-control-lg" type="password" placeholder="Password" v-model='form.password' />
               </fieldset>
               <fieldset class="form-group">
-                <button class="btn btn-lg btn-primary pull-xs-right" @click='updateHandler' type="button">
+                <button class="btn btn-lg btn-primary pull-xs-right" @click='updateHandler' type="button" :disabled='loginloading'>
                   Update Settings
                 </button>
               </fieldset>
@@ -61,6 +61,7 @@ export default {
     return {
       errors: [],
       password: "",
+      loginloading: false,
       form: {
         username: "",
         email: "",
@@ -70,7 +71,7 @@ export default {
     };
   },
   mounted() {
-    console.log(this.user);
+    // console.log(this.user);
     this.form.username = this.user.username;
     this.form.email = this.user.email;
     this.form.image = this.user.image;
@@ -78,7 +79,7 @@ export default {
   },
   methods: {
     logout() {
-      Cookie.remove('user')
+      Cookie.remove("user");
       this.$store.commit("setUser", null);
       this.$router.push("/");
     },
@@ -86,10 +87,12 @@ export default {
       if (this.password) {
         this.form.password = this.password;
       }
+      this.loginloading = true;
       let res = await userApi({ user: this.form });
+      this.loginloading = false;
       if (!res.errors) {
         let userRes = await getUserprofile(this.form.username);
-        this.$store.commit('setUserItem', userRes.data.profile);
+        this.$store.commit("setUserItem", userRes.data.profile);
         this.$router.push(`/profile/${this.form.username}`);
       }
     }

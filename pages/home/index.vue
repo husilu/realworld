@@ -116,13 +116,10 @@
 </template>
 
 <script>
-import {
-  getArticles,
-  getFeedArticles
-} from "@/api/article";
+import { getArticles, getFeedArticles } from "@/api/article";
 import { getTags } from "@/api/tag";
 import { mapState } from "vuex";
-import ArticleItem from '@/components/article-item';
+import ArticleItem from "@/components/article-item";
 export default {
   name: "HomeIndex",
   watchQuery: ["page", "tag", "tab"],
@@ -165,9 +162,10 @@ export default {
     },
     ...mapState(["user"])
   },
-  methods: {
-    
-  }
+  mounted() {
+    // console.log("userhome", this.user);
+  },
+  methods: {}
 };
 </script>
 

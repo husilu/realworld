@@ -28,7 +28,7 @@
                     <i class='ion-close-round' @click='scHandler(index)'></i>{{item}}</span>
                 </div>
               </fieldset>
-              <button class="btn btn-lg pull-xs-right btn-primary" type="button" @click='postArticle'>
+              <button class="btn btn-lg pull-xs-right btn-primary" type="button" @click='postArticle' :disabled='publoading'>
                 Publish Article
               </button>
             </fieldset>
@@ -54,7 +54,8 @@ export default {
         description: "",
         tagList: []
       },
-      tagName: ""
+      tagName: "",
+      publoading: false
     };
   },
   async mounted() {
@@ -69,8 +70,10 @@ export default {
   },
   methods: {
     async postArticle() {
+      this.publoading = true;
       try {
         let res = await postArticle({ article: this.params });
+        this.publoading = false;
         this.$router.push({
           name: "article",
           params: {
@@ -78,7 +81,8 @@ export default {
           }
         });
       } catch (err) {
-        console.log("请求失败", err);
+        this.publoading = false;
+        // console.log("请求失败", err);
         this.errors = err.response.data.errors;
       }
     },

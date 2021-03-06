@@ -13,7 +13,7 @@ export const mutations = {
     state.user = data
   },
   setUserItem(state, data) {
-    console.log('setUserItem', data);
+    // console.log('setUserItem', data);
     state.user.bio = data.bio;
     state.user.following = data.following;
     state.user.image = data.image;
@@ -41,10 +41,9 @@ export const actions = {
       try {
         user = JSON.parse(parsed.user) // parsed.user 是json字符串 JSON.parse得到json对象
       } catch (err) {
-
       }
+      // 提交mutation 修改 state状态
+      commit('setUser', user);
     }
-    // 提交mutation 修改 state状态
-    commit('setUser', user);
   }
 }

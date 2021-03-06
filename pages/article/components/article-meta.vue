@@ -18,41 +18,59 @@
       </nuxt-link>
       <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
     </div>
-    <template v-if='article.author.username !== user.username'>
-      <button class="btn btn-sm btn-outline-secondary" v-if='!article.author.following' @click='toFollow' :disabled='loading'>
+    <template v-if='user'>
+      <template v-if='(article.author.username !== user.username)'>
+        <button class="btn btn-sm btn-outline-secondary" v-if='!article.author.following' @click='toFollow' :disabled='loading'>
           <i class="ion-plus-round"></i>
           &nbsp; Follow {{article.author.username}}
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" v-else @click='toFollow'>
+          <i class="ion-plus-round"></i>
+          &nbsp; Unfollow {{article.author.username}}
+        </button>
+      </template>
+      <button class="btn btn-sm btn-outline-secondary" v-else @click='toEdit(article.slug)'>
+        <i class="ion-edit"></i>
+        &nbsp; Edit Article
+      </button>
+      <button v-if='article.author.username === user.username' class='btn btn-outline-danger btn-sm' @click='deleteHandler(article.slug)'>
+        <i class="ion-trash-a"></i>
+        &nbsp; Delete Article
+      </button>
+      &nbsp;
+      <button class="btn btn-sm btn-outline-primary" :class="{ active: article.favorited }" @click="onFavorite(article)" :disabled='faloading' v-if='article.author.username !== user.username'>
+        <i class="ion-heart"></i>
+        &nbsp; Favorite Article
+        <span class="counter">{{article.favoritesCount}}</span>
+      </button>
+    </template>
+    <template v-else>
+      <button class="btn btn-sm btn-outline-secondary" v-if='!article.author.following' @click='toFollow' :disabled='loading'>
+        <i class="ion-plus-round"></i>
+        &nbsp; Follow {{article.author.username}}
       </button>
       <button class="btn btn-sm btn-outline-secondary" v-else @click='toFollow'>
         <i class="ion-plus-round"></i>
-          &nbsp; Unfollow {{article.author.username}}
+        &nbsp; Unfollow {{article.author.username}}
+      </button>
+      &nbsp;
+      <button class='btn btn-outline-danger btn-sm' @click='deleteHandler(article.slug)'>
+        <i class="ion-trash-a"></i>
+        &nbsp; Delete Article
+      </button>
+      <button class="btn btn-sm btn-outline-primary" :class="{ active: article.favorited }" @click="onFavorite(article)" :disabled='faloading'>
+        <i class="ion-heart"></i>
+        &nbsp; Favorite Article
+        <span class="counter">{{article.favoritesCount}}</span>
       </button>
     </template>
-    <button class="btn btn-sm btn-outline-secondary" v-else @click='toEdit(article.slug)'>
-        <i class="ion-edit"></i>
-        &nbsp; Edit Article
-    </button>
-    &nbsp;
-    <button class="btn btn-sm btn-outline-primary" :class="{ active: article.favorited }" @click="onFavorite(article)" :disabled='faloading' v-if='article.author.username !== user.username'>
-      <i class="ion-heart"></i>
-      &nbsp; Favorite Post
-      <span class="counter">{{article.author.favoritesCount}}</span>
-    </button>
-    <button v-else class='btn btn-outline-danger btn-sm' @click='deleteHandler(article.slug)'>
-      <i class="ion-trash-a"></i>
-      &nbsp; Delete Article
-    </button>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import { follow } from "@/api/user.js";
-import {
-  deleteFavorite,
-  addFavorite,
-  deleteArticle
-} from "@/api/article";
+import { deleteFavorite, addFavorite, deleteArticle } from "@/api/article";
 export default {
   name: "ArticleMeta",
   props: {
@@ -68,23 +86,32 @@ export default {
     return {
       loading: false,
       faloading: false
-    }
+    };
+  },
+  mounted() {
+    console.log(this.user);
   },
   methods: {
     async toFollow() {
-      this.loading = true;
-      let method = this.article.author.following ? "DELETE" : "POST";
-      await follow({ method, username: this.user.username });
-      this.loading = false;
-      this.article.author.following = !this.article.author.following
+      if (this.user.username) {
+        this.loading = true;
+        let method = this.article.author.following ? "DELETE" : "POST";
+        await follow({ method, username: this.user.username });
+        this.loading = false;
+        this.article.author.following = !this.article.author.following;
+      } else {
+        this.$router.push({
+          name: "login"
+        });
+      }
     },
     toEdit(slug) {
       this.$router.push({
-        name: 'editor',
+        name: "editor",
         params: {
           slug: slug
-        },
-      })
+        }
+      });
     },
     async onFavorite(article) {
       this.faloading = true;
@@ -100,13 +127,20 @@ export default {
         article.favorited = true;
         article.favoritesCount += 1;
         this.faloading = false;
+        console.log(article);
       }
     },
     async deleteHandler(slug) {
-      await deleteArticle(slug);
-      this.$router.push({
-        name: 'home'
-      })
+      if (this.user) {
+        await deleteArticle(slug);
+        this.$router.push({
+          name: "home"
+        });
+      } else {
+        this.$router.push({
+          name: "login"
+        });
+      }
     }
   }
 };

@@ -29,7 +29,15 @@
       <div class="row">
 
         <div class="col-xs-12 col-md-8 offset-md-2">
-          <article-comments :article="article" />
+          <p v-if='!user'>
+            <nuxt-link to="/login">
+              Sign in
+            </nuxt-link>
+            <nuxt-link to="/register">
+              Sign Up
+            </nuxt-link>
+          </p>
+          <article-comments :article="article" v-else/>
         </div>
 
       </div>
@@ -44,6 +52,7 @@ import { getArticle } from "@/api/article";
 import MarkdownIt from "markdown-it";
 import ArticleMeta from "./components/article-meta";
 import ArticleComments from "./components/article-comments";
+import { mapState } from "vuex";
 export default {
   name: "ArticleIndex",
   async asyncData({ params }) {
@@ -55,12 +64,14 @@ export default {
       article
     };
   },
+  computed: {
+    ...mapState(["user"])
+  },
   components: {
     ArticleMeta,
     ArticleComments
   },
-  methods: {
-  },
+  methods: {},
   head() {
     return {
       title: `${this.article.title} - RealWorld`,

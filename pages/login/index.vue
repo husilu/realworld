@@ -29,7 +29,7 @@
             <fieldset class="form-group">
               <input v-model='user.password' class="form-control form-control-lg" type="password" placeholder="Password" required minlength="8" />
             </fieldset>
-            <button class="btn btn-lg btn-primary pull-xs-right">
+            <button class="btn btn-lg btn-primary pull-xs-right" :disabled="loading">
               {{ isLogin ? 'Sign in' : 'Sign up' }}
             </button>
           </form>
@@ -53,6 +53,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       user: {
         email: "",
         password: "",
@@ -64,19 +65,22 @@ export default {
   methods: {
     async onSubmit() {
       // 提交表单请求登录
+      this.loading = true;
       try {
         const { data } = this.isLogin
           ? await login({ user: this.user })
           : await register({ user: this.user });
-        console.log(data);
-        // TODO 保存用户的登录状态
-        this.$store.commit("setUser", data.user);
+        this.loading = false;
+        // console.log(data);
         // 为了防止刷新页面，数据丢失 我们需要把数据持久化
         Cookie.set("user", data.user);
+        // TODO 保存用户的登录状态
+        this.$store.commit("setUser", data.user);
         // 跳转到首页
         this.$router.push("/");
       } catch (err) {
-        console.log("请求失败", err);
+        // console.log("请求失败", err);
+        this.loading = false;
         this.errors = err.response.data.errors;
       }
     }
