@@ -60,19 +60,31 @@ export const postArticle = (params) => {
   })
 }
 
-// 编辑用户信息
-export const userApi = (params) => {
+// 评论文章
+export const postComment = (params) => {
   return request({
-    method: 'PUT',
-    url: `/api/user`,
-    data: params
+    method: 'POST',
+    url: `/api/articles/${params.slug}/comments`,
+    data: {
+      comment: {
+        body: params.comment
+      }
+    }
   })
 }
 
-// 获取用户profile信息
-export const getUserprofile = (params) => {
+// 删除文章
+export const deleteArticle = (slug) => {
   return request({
-    method: 'GET',
-    url: `/api/profiles/${params}`
+    method: 'DELETE',
+    url: `/api/articles/${slug}`
+  })
+}
+
+// 删除评论
+export const deleteComment = (slug, id) => {
+  return request({
+    method: 'DELETE',
+    url: `/api/articles/${slug}/comments/${id}`
   })
 }

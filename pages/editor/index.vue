@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { postArticle } from "@/api/article";
+import { postArticle, getArticle } from "@/api/article";
 export default {
   // 在路由匹配组件渲染之前会先执行中间件处理
   middleware: "authenticated",
@@ -56,6 +56,17 @@ export default {
       },
       tagName: ""
     };
+  },
+  async mounted() {
+    // console.log(this.$route.params)
+    if (this.$route.params) {
+      let res = await getArticle(this.$route.params.slug);
+      let { article } = res.data;
+      this.params.title = article.title;
+      this.params.body = article.body;
+      this.params.description = article.description;
+      this.params.tagList = article.tagList;
+    }
   },
   methods: {
     async postArticle() {

@@ -11,6 +11,13 @@ export const state = () => {
 export const mutations = {
   setUser(state, data) {
     state.user = data
+  },
+  setUserItem(state, data) {
+    console.log('setUserItem', data);
+    state.user.bio = data.bio;
+    state.user.following = data.following;
+    state.user.image = data.image;
+    state.user.username = data.username;
   }
 }
 
@@ -31,7 +38,6 @@ export const actions = {
     if (req.headers.cookie) {
       // 使用 cookieparser 把cookie字符串 转为js对象
       const parsed = cookieparser.parse(req.headers.cookie);
-      console.log(parsed)
       try {
         user = JSON.parse(parsed.user) // parsed.user 是json字符串 JSON.parse得到json对象
       } catch (err) {

@@ -4,16 +4,31 @@
       <div class="container">
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img :src="user.image" class="user-img" />
-            <h4>{{user.username}}</h4>
+            <img :src="image" class="user-img" />
+            <h4>{{ username }}</h4>
             <p>
-              {{user.bio}}
+              {{ bio }}
             </p>
-            <button class="btn btn-sm btn-outline-secondary action-btn" v-if="user.username !== username">
-              <i class="ion-plus-round"></i>
-              &nbsp; Follow Eric Simons
+            <button
+              class="btn btn-sm btn-outline-secondary action-btn"
+              v-if="user.username !== username"
+              @click="toFollow"
+              :disabled="loading"
+            >
+              <template v-if="!following">
+                <i class="ion-plus-round"></i>
+                &nbsp; Follow {{ username }}
+              </template>
+              <template v-else>
+                <i class="ion-plus-round"></i>
+                &nbsp; Unfollow {{ username }}
+              </template>
             </button>
-            <button class="btn btn-sm btn-outline-secondary action-btn" v-else @click='toEdit'>
+            <button
+              class="btn btn-sm btn-outline-secondary action-btn"
+              v-else
+              @click="toEdit"
+            >
               <i class="ion-plus-round"></i>
               &nbsp; Edit Profile Settings
             </button>
@@ -28,15 +43,48 @@
           <div class="articles-toggle">
             <ul class="nav nav-pills outline-active">
               <li class="nav-item">
-                <a class="nav-link active" href="">My Articles</a>
+                <nuxt-link
+                  class="nav-link"
+                  :class="{
+                    active: tab === 'my_articles',
+                  }"
+                  exact
+                  :to="{
+                    name: 'profile',
+                    params: {
+                      username: username,
+                    },
+                    query: {
+                      tab: 'my_articles',
+                    },
+                  }"
+                  >My Articles</nuxt-link
+                >
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="">Favorited Articles</a>
+                <!-- <a class="nav-link" href="">Favorited Articles</a> -->
+                <nuxt-link
+                  class="nav-link"
+                  :class="{
+                    active: tab === 'favorited_articles',
+                  }"
+                  exact
+                  :to="{
+                    name: 'profile',
+                    params: {
+                      username: username,
+                    },
+                    query: {
+                      tab: 'favorited_articles',
+                    },
+                  }"
+                  >Favorited Articles</nuxt-link
+                >
               </li>
             </ul>
           </div>
 
-          <div class="article-preview">
+          <!-- <div class="article-preview">
             <div class="article-meta">
               <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
               <div class="info">
@@ -52,31 +100,36 @@
               <p>This is the description for the post.</p>
               <span>Read more...</span>
             </a>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>
-                The song you won't ever stop singing. No matter how hard you try.
-              </h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-              <ul class="tag-list">
-                <li class="tag-default tag-pill tag-outline">Music</li>
-                <li class="tag-default tag-pill tag-outline">Song</li>
-              </ul>
-            </a>
-          </div>
+          </div> -->
+          <article-item
+            v-for="article in articles"
+            :article="article"
+            :key="article.slug"
+          ></article-item>
+          <ul class="pagination" v-if='totalPage > 1'>
+            <li
+              class="page-item"
+              v-for="item in totalPage"
+              :key="item"
+              :class="{ active: item === page }"
+            >
+              <nuxt-link
+                class="page-link"
+                :to="{
+                  name: 'profile',
+                  params: {
+                    username: username,
+                  },
+                  query: {
+                    tab,
+                    page: item
+                  },
+                }"
+              >
+                {{ item }}
+              </nuxt-link>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -85,31 +138,76 @@
 
 <script>
 import { mapState } from "vuex";
-import { getUserprofile } from "@/api/article";
+import { getUserprofile, follow } from "@/api/user.js";
+import { getArticles } from "@/api/article";
+import ArticleItem from "@/components/article-item";
 export default {
   middleware: "authenticated",
   name: "UserProfile",
-  computed: {
-    ...mapState(["user"])
+  components: {
+    ArticleItem,
   },
-  async asyncData({ params, store }) {
-    let res = await getUserprofile(params.username);
-    let { image, bio, following, username } = res.data.profile;
+  computed: {
+    ...mapState(["user"]),
+    totalPage() {
+      return Math.ceil(this.articlesCount / this.limit);
+    },
+  },
+  watchQuery: ["tab", "page"],
+  async asyncData({ params, store, query }) {
+    console.log(query)
+    const page = Number.parseInt(query.page || 1);
+    const tab = query.tab || "my_articles";
+    const limit = 5;
+    const author = params.username;
+    const favorited = params.username;
+    const paramsback =
+      tab === "my_articles"
+        ? {
+            limit,
+            author,
+            offset: (page - 1) * limit,
+          }
+        : {
+            limit,
+            favorited,
+            offset: (page - 1) * limit,
+          };
+    const [getUserprofileRes, articleRes] = await Promise.all([
+      getUserprofile(author),
+      getArticles(paramsback),
+    ]);
+    const { image, bio, following, username } = getUserprofileRes.data.profile;
+    const { articles, articlesCount } = articleRes.data;
     return {
       image,
       bio,
       following,
-      username
+      username,
+      tab,
+      articles,
+      articlesCount,
+      limit,
+      page,
     };
   },
   data() {
-    return {};
+    return {
+      loading: false,
+    };
   },
   methods: {
     toEdit() {
       this.$router.push("/settings");
-    }
-  }
+    },
+    async toFollow() {
+      this.loading = true;
+      let method = this.following ? "DELETE" : "POST";
+      let { data } = await follow({ method, username: this.username });
+      this.loading = false;
+      this.following = data.profile.following;
+    },
+  },
 };
 </script>
 

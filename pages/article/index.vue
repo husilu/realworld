@@ -59,6 +59,8 @@ export default {
     ArticleMeta,
     ArticleComments
   },
+  methods: {
+  },
   head() {
     return {
       title: `${this.article.title} - RealWorld`,

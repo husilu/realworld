@@ -2,11 +2,11 @@
   <div>
     <form class="card comment-form">
       <div class="card-block">
-        <textarea class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+        <textarea class="form-control" placeholder="Write a comment..." rows="3" v-model='commentVal'></textarea>
       </div>
       <div class="card-footer">
         <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-        <button class="btn btn-sm btn-primary">
+        <button class="btn btn-sm btn-primary" @click='postCommentHandler' type="button">
           Post Comment
         </button>
       </div>
@@ -36,8 +36,8 @@
         </nuxt-link>
         <span class="date-posted">{{item.createdAt | date('MMM DD, YYYY')}}</span>
         <span class="mod-options">
-          <i class="ion-edit"></i>
-          <i class="ion-trash-a"></i>
+          <!-- <i class="ion-edit"></i> -->
+          <i class="ion-trash-a" v-if='item.author.username === user.username' @click='deleteComHandler(item.id)'></i>
         </span>
       </div>
     </div>
@@ -46,7 +46,8 @@
 </template>
 
 <script>
-import { getComments } from "@/api/article";
+import { mapState } from "vuex";
+import { getComments, postComment, deleteComment } from "@/api/article";
 export default {
   name: "ArticleComments",
   props: {
@@ -55,14 +56,33 @@ export default {
       required: true
     }
   },
+  computed: {
+    ...mapState(["user"])
+  },
   data() {
     return {
-      comments: [] // 文章列表
+      comments: [], // 文章列表
+      commentVal: ''
     };
   },
   async mounted() {
-    const { data } = await getComments(this.article.slug);
-    this.comments = data.comments;
+    this.getComments();
+  },
+  methods: {
+    async postCommentHandler() {
+      let res = await postComment({slug: this.article.slug, comment: this.commentVal});
+      console.log(res)
+      this.commentVal = '';
+      this.getComments();
+    },
+    async getComments() {
+      const { data } = await getComments(this.article.slug);
+      this.comments = data.comments;
+    },
+    async deleteComHandler(id) {
+      await deleteComment(this.article.slug, id)
+      this.getComments();
+    }
   }
 };
 </script>

@@ -49,7 +49,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { userApi } from "@/api/article";
+import { userApi, getUserprofile } from "@/api/user.js";
 export default {
   middleware: "authenticated",
   name: "SettingsIndex",
@@ -69,6 +69,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.user);
     this.form.username = this.user.username;
     this.form.email = this.user.email;
     this.form.image = this.user.image;
@@ -84,7 +85,12 @@ export default {
         this.form.password = this.password;
       }
       let res = await userApi({ user: this.form });
-      this.$router.push(`/profile/${this.user.username}`);
+      if (!res.errors) {
+        let userRes = await getUserprofile(this.form.username);
+        console.log('userRes', userRes)
+        this.$store.commit('setUserItem', userRes.data.profile);
+        this.$router.push(`/profile/${this.form.username}`);
+      }
     }
   }
 };

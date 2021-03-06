@@ -46,7 +46,7 @@
             </ul>
           </div>
 
-          <div class="article-preview" v-for='article in articles' :key="article.slug">
+          <!-- <div class="article-preview" v-for='article in articles' :key="article.slug">
             <div class="article-meta">
               <nuxt-link :to="{name: 'profile', params: {
                 username: article.author.username
@@ -73,12 +73,13 @@
               <p>{{article.description}}</p>
               <span>Read more...</span>
             </nuxt-link>
-          </div>
+          </div> -->
+          <article-item v-for='article in articles' :article='article' :key="article.slug"></article-item>
           <!-- <div class='article-loading' v-if='loading'>
             Loading articles...
           </div> -->
           <!-- 分页 -->
-          <ul class='pagination'>
+          <ul class='pagination' v-if='totalPage > 1'>
             <li class='page-item' v-for='item in totalPage' :key='item' :class='{active: item === page}'>
               <nuxt-link class="page-link" :to="{
                 name: 'home',
@@ -117,15 +118,17 @@
 <script>
 import {
   getArticles,
-  getFeedArticles,
-  deleteFavorite,
-  addFavorite
+  getFeedArticles
 } from "@/api/article";
 import { getTags } from "@/api/tag";
 import { mapState } from "vuex";
+import ArticleItem from '@/components/article-item';
 export default {
   name: "HomeIndex",
   watchQuery: ["page", "tag", "tab"],
+  components: {
+    ArticleItem
+  },
   async asyncData({ query, store }) {
     const page = Number.parseInt(query.page || 1);
     const limit = 20;
@@ -163,22 +166,7 @@ export default {
     ...mapState(["user"])
   },
   methods: {
-    async onFavorite(article) {
-      article.favoriteDisabled = true;
-      if (article.favorited) {
-        // 取消点赞
-        await deleteFavorite(article.slug);
-        article.favorited = false;
-        article.favoritesCount -= 1;
-        article.favoriteDisabled = false;
-      } else {
-        // 点赞
-        await addFavorite(article.slug);
-        article.favorited = true;
-        article.favoriteDisabled = false;
-        article.favoritesCount += 1;
-      }
-    }
+    
   }
 };
 </script>
